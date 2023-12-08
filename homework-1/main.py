@@ -1,7 +1,19 @@
+from googleapiclient.discovery import build
 from src.channel import Channel
+from dotenv import load_dotenv
+import os
+
 
 if __name__ == '__main__':
-    moscowpython = Channel('UC-OVMPlMA3-YCIeg4z5z23A')
+    is_load = load_dotenv()
+    if not is_load:
+        print('Загрузить переменные среды не вышло!')
+        raise FileNotFoundError
+
+    api_key: str = os.getenv('YT_API_KEY')
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
+    moscowpython = Channel(youtube, 'UC-OVMPlMA3-YCIeg4z5z23A')
     moscowpython.print_info()
 
     """
