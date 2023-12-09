@@ -1,6 +1,17 @@
 from src.channel import Channel
+from dotenv import load_dotenv
+import os
+
 
 if __name__ == '__main__':
+    is_load = load_dotenv()
+    if not is_load:
+        print('Загрузить переменные среды не вышло!')
+        raise FileNotFoundError
+
+    api_key = os.getenv('YT_API_KEY')
+    Channel.init_api(api_key)
+
     moscowpython = Channel('UC-OVMPlMA3-YCIeg4z5z23A')
 
     # получаем значения атрибутов
@@ -9,7 +20,7 @@ if __name__ == '__main__':
     print(moscowpython.url)  # https://www.youtube.com/channel/UC-OVMPlMA3-YCIeg4z5z23A
 
     # менять не можем
-    moscowpython.channel_id = 'Новое название'
+    # moscowpython.channel_id = 'Новое название'
     # AttributeError: property 'channel_id' of 'Channel' object has no setter
 
     # можем получить объект для работы с API вне класса
