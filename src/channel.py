@@ -1,6 +1,9 @@
 import json
+import os
 
+from dotenv import load_dotenv
 from googleapiclient.discovery import build
+from uritemplate import api
 
 from src.utils import printj
 
@@ -11,7 +14,17 @@ class Channel:
 
     def __new__(cls, *args, **kwargs):
         if cls.__youtube is None:
-            raise Exception('Объект не инициализирован! Нужен Апи ключ.')
+            is_load = load_dotenv()
+            if not is_load:
+                print('Загрузить переменные среды не вышло!')
+                raise FileNotFoundError
+
+            api_key = os.getenv('YT_API_KEY')
+            if api_key is None:
+                print('Загрузить АПИ ключ не вышло!')
+                raise ValueError('Загрузить АПИ ключ не вышло!')
+            cls.init_api(api_key)
+            # raise Exception('Объект не инициализирован! Нужен Апи ключ.')
         return super().__new__(cls)
 
     def __init__(self, channel_id: str) -> None:
@@ -23,9 +36,30 @@ class Channel:
         self.__title = channel['items'][0]['snippet']['title']
         self.__description = channel['items'][0]['snippet']['description']
         self.__url = f'https://www.youtube.com/channel/{channel_id}'
-        self.__video_count = channel['items'][0]['statistics']['videoCount']
-        self.__view_count = channel['items'][0]['statistics']['viewCount']
-        self.__subscriber_count = channel['items'][0]['statistics']['subscriberCount']
+        self.__video_count = int(
+            channel['items'][0]['statistics']['videoCount'])
+        self.__view_count = int(channel['items'][0]['statistics']['viewCount'])
+        self.__subscriber_count = int(
+            channel['items'][0]['statistics']['subscriberCount'])
+
+    def __str__(self):
+        return f"{self.__title} ({self.__url})"
+
+    def __lt__(self, other):
+        """ Меньше """
+        return self.subscriber_count < other.subscriber_count
+
+    def __le__(self, other):
+        """ Меньше или Равно """
+        return self.subscriber_count <= other.subscriber_count
+
+    def __add__(self, other):
+        """ ПЛЮС """
+        return self.subscriber_count + other.subscriber_count
+
+    def __sub__(self, other):
+        """ МИНУС """
+        return self.subscriber_count - other.subscriber_count
 
     @classmethod
     def init_api(cls, youtube_api: str):
@@ -57,6 +91,14 @@ class Channel:
     @property
     def video_count(self):
         return self.__video_count
+
+    @property
+    def view_count(self):
+        return self.__view_count
+
+    @property
+    def subscriber_count(self):
+        return self.__subscriber_count
 
     def print_info(self) -> None:
         """Выводит в консоль информацию о канале."""
