@@ -8,8 +8,7 @@ from uritemplate import api
 from src.utils import printj
 
 
-class Channel:
-    """Класс для ютуб-канала"""
+class YouTubeObject:
     __youtube = None
 
     def __new__(cls, *args, **kwargs):
@@ -27,6 +26,20 @@ class Channel:
             # raise Exception('Объект не инициализирован! Нужен Апи ключ.')
         return super().__new__(cls)
 
+    @classmethod
+    def init_api(cls, youtube_api: str):
+        print('Инициализирую ютуб')
+        cls.__youtube = build('youtube', 'v3',
+                              developerKey=youtube_api)
+        print(f'Объект ютуба: {cls.__youtube}')
+
+    @classmethod
+    def get_service(cls):
+        return cls.__youtube
+
+
+class Channel(YouTubeObject):
+    """Класс для ютуб-канала"""
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
 
@@ -60,17 +73,6 @@ class Channel:
     def __sub__(self, other):
         """ МИНУС """
         return self.subscriber_count - other.subscriber_count
-
-    @classmethod
-    def init_api(cls, youtube_api: str):
-        print('Инициализирую ютуб')
-        cls.__youtube = build('youtube', 'v3',
-                              developerKey=youtube_api)
-        print(f'Объект ютуба: {cls.__youtube}')
-
-    @classmethod
-    def get_service(cls):
-        return cls.__youtube
 
     @property
     def channel_id(self):
